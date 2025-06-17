@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>HK PREDICTOR</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #2af598, #009efd); /* Clean gradient */
+      font-family: 'Poppins', sans-serif;
+      color: #fff;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      background: transparent;
+      padding: 30px;
+      border-radius: 20px;
+      max-width: 340px;
+      width: 90%;
+      border: 2px solid rgba(255,255,255,0.2);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 26px;
+      text-transform: uppercase;
+      color: #fff;
+      text-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+
+    .info {
+      display: flex;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      font-size: 16px;
+    }
+
+    .info span {
+      font-weight: bold;
+      color: #fff;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: bold;
+      background: linear-gradient(90deg, #f7971e, #ffd200);
+      color: #000;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>HK PREDICTOR</h1>
+    <div class="info"><strong>Period:</strong> <span id="period">--</span></div>
+    <div class="info"><strong>Prediction:</strong> <span id="prediction">-</span></div>
+    <button onclick="predict()">Predict</button>
+  </div>
+
+  <script>
+    let currentPeriod = "";
+    let predictionForPeriod = "";
+
+    function updatePeriod() {
+      const now = new Date();
+      const yyyyMMdd = now.getUTCFullYear().toString() +
+        String(now.getUTCMonth() + 1).padStart(2, '0') +
+        String(now.getUTCDate()).padStart(2, '0');
+      const totalMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
+      const periodSuffix = 10001 + totalMinutes;
+      currentPeriod = `${yyyyMMdd}1000${periodSuffix}`;
+      document.getElementById("period").innerText = currentPeriod;
+
+      // Reset prediction only if period changed
+      predictionForPeriod = "";
+      document.getElementById("prediction").innerText = "-";
+    }
+
+    function predict() {
+      if (predictionForPeriod !== "") {
+        document.getElementById("prediction").innerText = predictionForPeriod;
+        return;
+      }
+
+      const now = new Date();
+      const hour = now.getUTCHours();
+      const min = now.getUTCMinutes();
+      const day = now.getUTCDate();
+      const logic = (hour * 3 + min + day) % 10;
+
+      predictionForPeriod = logic >= 5 ? "BIG" : "SMALL";
+      document.getElementById("prediction").innerText = predictionForPeriod;
+    }
+
+    function scheduleAlignedUpdate() {
+      const now = new Date();
+      const msToNextMinute = (60 - now.getSeconds()) * 1000;
+
+      setTimeout(() => {
+        updatePeriod();
+        setInterval(updatePeriod, 60000);
+      }, msToNextMinute);
+    }
+
+    updatePeriod();           // First load
+    scheduleAlignedUpdate();  // Real-time aligned update
+  </script>
+
+</body>
+</html>
